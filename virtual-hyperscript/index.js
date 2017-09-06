@@ -70,9 +70,31 @@ function h(tagName, properties, children) {
     return new VNode(tag, props, childNodes, key, namespace);
 }
 
+function createVNodeElement(c, childNodes) {
+  for (var i = 0; i < c.childNodes.length; i++) {
+    var el = c.childNodes[i];
+    if(el.tagName) {
+        var props = {}
+        for(var j = 0; j < el.attributes.length; j++) {
+          props[el.attributes[j].name] = el.attributes[j].value
+        }
+        if(el.innerHTML){
+          var template = h(el.tagName, props, el)
+          childNodes.push(new VNode(template.tagName, template.properties, template.children));
+        } else {
+          childNodes.push(new VNode(el.tagName));
+        }
+    }else if(el.textContent.trim() != ""){
+      childNodes.push(new VText(String(el.textContent)));
+    }
+  }
+}
+
 function addChild(c, childNodes, tag, props) {
     if (typeof c === 'string') {
         childNodes.push(new VText(c));
+    } else if (typeof c === 'object' && c.childNodes && c.childNodes.length) {
+      createVNodeElement(c, childNodes)
     } else if (typeof c === 'number') {
         childNodes.push(new VText(String(c)));
     } else if (isChild(c)) {
