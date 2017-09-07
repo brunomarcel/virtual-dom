@@ -15,10 +15,36 @@ var softSetHook = require('./hooks/soft-set-hook.js');
 var evHook = require('./hooks/ev-hook.js');
 
 module.exports = h;
+var arrayAttibutes = [
+	'id',
+	'alt',
+	'title',
+	'className',
+	'attributes',
+	'style'
+];
+
+function formatProperties (properties) {
+	var _p = {};
+	_p.attributes = {}
+	for(var i = 0; i < Object.keys(properties).length; i++) {
+		if(Object.keys(properties)[i] === 'classname') {
+			_p.className = properties[Object.keys(properties)[i]]
+		} else if(arrayAttibutes.indexOf(Object.keys(properties)[i]) === -1 ){
+			_p.attributes[Object.keys(properties)[i]] =	properties[Object.keys(properties)[i]]
+		} else {
+			_p[Object.keys(properties)[i]] =	properties[Object.keys(properties)[i]]
+		}
+	}
+	return _p;
+}
 
 function h(tagName, properties, children) {
     var childNodes = [];
     var tag, props, key, namespace;
+		if(properties) {
+			properties = formatProperties(properties);
+		}
 
     if (!children && isChildren(properties)) {
         children = properties;
@@ -61,11 +87,9 @@ function h(tagName, properties, children) {
     }
 
     transformProperties(props);
-
     if (children !== undefined && children !== null) {
         addChild(children, childNodes, tag, props);
     }
-
 
     return new VNode(tag, props, childNodes, key, namespace);
 }
@@ -81,6 +105,9 @@ function createVNodeElement(c, childNodes) {
         if(el.innerHTML){
           var template = h(el.tagName, props, el)
           childNodes.push(new VNode(template.tagName, template.properties, template.children));
+        } else if(el.innerHTML === "" && el.attributes.length){
+					props = formatProperties(props)
+          childNodes.push(new VNode(el.tagName, props));
         } else {
           childNodes.push(new VNode(el.tagName));
         }
