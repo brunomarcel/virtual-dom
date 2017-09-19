@@ -1,7 +1,6 @@
 'use strict';
 
 var isArray = require('x-is-array');
-
 var VNode = require('../vnode/vnode.js');
 var VText = require('../vnode/vtext.js');
 var isVNode = require('../vnode/is-vnode');
@@ -21,7 +20,8 @@ var arrayAttibutes = [
 	'title',
 	'className',
 	'attributes',
-	'style'
+	'style',
+	'key'
 ];
 
 function formatProperties (properties) {
